@@ -14,7 +14,7 @@ def products():
 def sales():
     return render_template("/sales.html")
 
-@app.route("/")
+@app.route("/history")
 def history():
     return render_template("/history.html")
 
