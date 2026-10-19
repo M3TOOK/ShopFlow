@@ -1,4 +1,174 @@
-{% extends "base.html" %} 
-{% block main %} 
-<h1>Products</h1>
+{% extends "base.html" %} {% block main %}
+<div class="mx-auto max-w-[1600px] space-y-8">
+  <!-- Header -->
+  <header
+    class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
+  >
+    <div>
+      <p
+        class="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#D4A853]"
+      >
+        Manage Products
+      </p>
+
+      <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        Products
+      </h1>
+
+      <p class="mt-2 text-sm font-normal text-gray-400">
+        Monitor your products.
+      </p>
+    </div>
+
+    <a
+      href="/"
+      class="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-[#111111] shadow-lg shadow-[#D4A853]/10 transition hover:-translate-y-0.5 hover:bg-[#e5bd70] sm:self-auto"
+    >
+      <i class="fa fa-dashboard"></i>
+      Shop Status
+    </a>
+  </header>
+  {# product inputs #}
+
+  <!-- Add Product Form -->
+  <div class="rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5 sm:p-6">
+    <div class="mb-6">
+      <p
+        class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#D4A853]"
+      >
+        Inventory
+      </p>
+      <h2 class="text-xl font-bold text-white">Add New Product</h2>
+      <p class="mt-1 text-sm text-gray-400">Enter the product details below.</p>
+    </div>
+
+    <form action="/products" method="POST" class="space-y-5">
+      <!-- Product Name -->
+      <div>
+        <label for="name" class="mb-2 block text-sm font-medium text-gray-300">
+          Product Name
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="e.g. Wireless Headphones"
+          required
+          class="w-full rounded-xl border border-[#333333] bg-[#111111] px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none transition focus:border-[#D4A853]"
+        />
+      </div>
+
+      <!-- Price and Quantity -->
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <label
+            for="price"
+            class="mb-2 block text-sm font-medium text-gray-300"
+          >
+            Price
+          </label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            placeholder="0.00"
+            min="0.01"
+            step="0.01"
+            required
+            class="w-full rounded-xl border border-[#333333] bg-[#111111] px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none transition focus:border-[#D4A853]"
+          />
+        </div>
+
+        <div>
+          <label
+            for="quantity"
+            class="mb-2 block text-sm font-medium text-gray-300"
+          >
+            Quantity
+          </label>
+          <input
+            type="number"
+            id="quantity"
+            name="quantity"
+            placeholder="0"
+            min="0"
+            step="1"
+            required
+            class="w-full rounded-xl border border-[#333333] bg-[#111111] px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none transition focus:border-[#D4A853]"
+          />
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex justify-end border-t border-white/[0.06] pt-5">
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-[#111111] transition hover:bg-[#e5bd70]"
+        >
+          <i class="fa fa-plus"></i>
+          Add Product
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- All products -->
+  <div
+    class="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1C1C1C] xl:col-span-2"
+  >
+    <div
+      class="flex items-center justify-between gap-4 border-b border-white/[0.06] p-5 sm:p-6"
+    >
+      <div>
+        <h2 class="text-lg font-bold text-white">Products</h2>
+        <p class="mt-1 text-xs font-normal text-gray-500">All products</p>
+      </div>
+
+      <div class="relative w-full sm:w-64">
+        <i
+          class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#D4A853]"
+        ></i>
+        <input
+          type="text"
+          placeholder="Search..."
+          class="w-full rounded-lg border border-[#333333] bg-[#1C1C1C] py-2 pl-9 pr-3 text-sm text-white placeholder:text-gray-500 outline-none transition focus:border-[#D4A853]"
+        />
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[480px] text-left">
+        <thead>
+          <tr
+            class="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-gray-500"
+          >
+            <th class="px-5 py-4 font-medium sm:px-6">Name</th>
+            <th class="px-5 py-4 font-medium">Price</th>
+            <th class="px-5 py-4 font-medium">quantity</th>
+            <th class="px-5 py-4 font-medium">Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td colspan="4" class="px-5 py-14 text-center sm:px-6">
+              <div
+                class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#252525] text-gray-500"
+              >
+                <i class="fa fa-shopping-bag text-xl"></i>
+              </div>
+              <p class="mt-4 text-sm font-medium text-gray-300">
+                No products yet
+              </p>
+              <p class="mt-1 text-xs font-normal text-gray-500">
+                Your products will appear here.
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 {% endblock %}

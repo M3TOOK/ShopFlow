@@ -4,18 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Font Awesome Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
 
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css" />
 
-    <title>ShopFlow</title>
+    <!-- Custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+
+    <title>M8 | ShopFlow</title>
   </head>
 
-  <body class="bg-[#111111] text-white">
+  <body class="bg-[#111111] text-white font-semibold">
     <main class="min-h-screen w-full flex">
       <!-- Mobile Overlay -->
       <div
@@ -30,8 +37,8 @@
       >
         <!-- Logo -->
         <div class="flex items-center justify-between">
-          <h1 id="logo" class="text-2xl font-bold tracking-wide">
-            Shop<span class="text-[#D4A853]">Flow</span>
+          <h1 id="logo" class="text-3xl font-bold tracking-wide">
+            M<span class="text-[#D4A853]">8</span>
           </h1>
 
           <button

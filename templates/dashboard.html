@@ -1,4 +1,415 @@
-{% extends "base.html" %} 
-{% block main %} 
-<h1>dashboard</h1>
+{% extends "base.html" %} {% block main %}
+
+<div class="mx-auto max-w-[1600px] space-y-8">
+  <!-- Header -->
+  <header
+    class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
+  >
+    <div>
+      <p
+        class="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#D4A853]"
+      >
+        ShopFlow Management
+      </p>
+
+      <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        Dashboard
+      </h1>
+
+      <p class="mt-2 text-sm font-normal text-gray-400">
+        Monitor your business performance and inventory.
+      </p>
+    </div>
+
+    <a
+      href="/products"
+      class="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-[#111111] shadow-lg shadow-[#D4A853]/10 transition hover:-translate-y-0.5 hover:bg-[#e5bd70] sm:self-auto"
+    >
+      <i class="fa fa-cubes"></i>
+      Manage Products
+    </a>
+  </header>
+
+  <!-- Statistics Cards -->
+  <section class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <!-- DATABASE: Available Balance -->
+    <article
+      class="group relative overflow-hidden rounded-2xl border border-emerald-500/10 bg-[#1C1C1C] p-5 shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:border-emerald-500/30"
+    >
+      <div
+        class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-500/[0.07] blur-2xl"
+      ></div>
+
+      <div class="relative flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-400">Available Balance</p>
+          <h2 class="mt-4 text-2xl font-bold text-white">$0.00</h2>
+        </div>
+
+        <div
+          class="flex h-12 w-12 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+        >
+          <i class="fa fa-credit-card text-xl"></i>
+        </div>
+      </div>
+
+      <div class="relative mt-5 border-t border-white/[0.06] pt-4">
+        <p class="text-xs font-normal text-gray-500">Current store balance</p>
+      </div>
+    </article>
+
+    <!-- DATABASE: Pending Money -->
+    <article
+      class="group relative overflow-hidden rounded-2xl border border-rose-500/10 bg-[#1C1C1C] p-5 shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:border-rose-500/30"
+    >
+      <div
+        class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-rose-500/[0.07] blur-2xl"
+      ></div>
+
+      <div class="relative flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-400">Pending Money</p>
+          <h2 class="mt-4 text-2xl font-bold text-white">$0.00</h2>
+        </div>
+
+        <div
+          class="flex h-12 w-12 items-center justify-center rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-400"
+        >
+          <i class="fa fa-clock-o text-xl"></i>
+        </div>
+      </div>
+
+      <div class="relative mt-5 border-t border-white/[0.06] pt-4">
+        <p class="text-xs font-normal text-gray-500">
+          Payments awaiting collection
+        </p>
+      </div>
+    </article>
+
+    <!-- DATABASE: Total Products -->
+    <article
+      class="group relative overflow-hidden rounded-2xl border border-sky-500/10 bg-[#1C1C1C] p-5 shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:border-sky-500/30"
+    >
+      <div
+        class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-sky-500/[0.07] blur-2xl"
+      ></div>
+
+      <div class="relative flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-400">Total Products</p>
+          <h2 class="mt-4 text-2xl font-bold text-white">128</h2>
+        </div>
+
+        <div
+          class="flex h-12 w-12 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/10 text-sky-400"
+        >
+          <i class="fa fa-cubes text-xl"></i>
+        </div>
+      </div>
+
+      <div class="relative mt-5 border-t border-white/[0.06] pt-4">
+        <p class="text-xs font-normal text-gray-500">
+          Products in your inventory
+        </p>
+      </div>
+    </article>
+
+    <!-- DATABASE: Total Sales -->
+    <article
+      class="group relative overflow-hidden rounded-2xl border border-[#D4A853]/15 bg-gradient-to-br from-[#282319] to-[#1C1C1C] p-5 shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:border-[#D4A853]/40"
+    >
+      <div
+        class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-[#D4A853]/[0.09] blur-2xl"
+      ></div>
+
+      <div class="relative flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-400">Total Sales</p>
+          <h2 class="mt-4 text-2xl font-bold text-white">$0.00</h2>
+        </div>
+
+        <div
+          class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#D4A853]/20 bg-[#D4A853]/10 text-[#D4A853]"
+        >
+          <i class="fa fa-line-chart text-xl"></i>
+        </div>
+      </div>
+
+      <div class="relative mt-5 border-t border-white/[0.06] pt-4">
+        <p class="text-xs font-normal text-gray-400">Total recorded revenue</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- Products + Users -->
+  <section class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
+    <!-- Products Panel -->
+    <section
+      class="min-w-0 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#1C1C1C] shadow-lg shadow-black/20"
+    >
+      <div class="flex items-center justify-between gap-3 p-5 sm:p-6">
+        <div>
+          <h2 class="text-lg font-bold text-white">Products</h2>
+          <p class="mt-1 text-xs font-normal text-gray-500">
+            Inventory overview
+          </p>
+        </div>
+
+        <a
+          href="/products"
+          class="inline-flex items-center gap-2 rounded-lg border border-[#D4A853]/20 bg-[#D4A853]/[0.08] px-3 py-2 text-xs font-semibold text-[#D4A853] transition hover:bg-[#D4A853]/15"
+        >
+          View All <i class="fa fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <!-- DATABASE: Product Statistics -->
+      <div class="mx-5 mb-5 grid grid-cols-2 gap-3 sm:mx-6">
+        <div class="rounded-xl border border-white/[0.06] bg-[#222222] p-3">
+          <p class="text-xs font-medium text-gray-400">Product Types</p>
+          <p class="mt-2 text-xl font-bold text-white">128</p>
+        </div>
+
+        <div class="rounded-xl border border-white/[0.06] bg-[#222222] p-3">
+          <p class="text-xs font-medium text-gray-400">Low Stock</p>
+          <p class="mt-2 text-xl font-bold text-amber-400">8</p>
+        </div>
+      </div>
+
+      <!-- DATABASE: Latest Products -->
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[470px] text-left">
+          <thead class="border-y border-white/[0.06] bg-[#222222]">
+            <tr
+              class="text-[10px] font-semibold uppercase tracking-wider text-gray-500"
+            >
+              <th class="px-5 py-3">Product</th>
+              <th class="px-4 py-3">Unit Price</th>
+              <th class="px-4 py-3">Quantity</th>
+              <th class="px-5 py-3">Status</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-white/[0.05]">
+            <tr class="transition hover:bg-white/[0.02]">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-[#D4A853]"
+                  >
+                    <i class="fa fa-laptop"></i>
+                  </div>
+                  <span class="text-sm font-medium text-white">Laptop Pro</span>
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-300">
+                $850.00
+              </td>
+              <td class="px-4 py-4 text-sm font-semibold text-white">24</td>
+              <td class="whitespace-nowrap px-5 py-4">
+                <span
+                  class="inline-flex items-center gap-1.5 text-xs text-emerald-400"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                  In Stock
+                </span>
+              </td>
+            </tr>
+
+            <tr class="transition hover:bg-white/[0.02]">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-[#D4A853]"
+                  >
+                    <i class="fa fa-headphones"></i>
+                  </div>
+                  <span class="text-sm font-medium text-white"
+                    >Wireless Headphones</span
+                  >
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-300">
+                $75.00
+              </td>
+              <td class="px-4 py-4 text-sm font-semibold text-white">42</td>
+              <td class="whitespace-nowrap px-5 py-4">
+                <span
+                  class="inline-flex items-center gap-1.5 text-xs text-emerald-400"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                  In Stock
+                </span>
+              </td>
+            </tr>
+
+            <tr class="transition hover:bg-white/[0.02]">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-[#D4A853]"
+                  >
+                    <i class="fa fa-keyboard-o"></i>
+                  </div>
+                  <span class="text-sm font-medium text-white"
+                    >Mechanical Keyboard</span
+                  >
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-300">
+                $95.00
+              </td>
+              <td class="px-4 py-4 text-sm font-semibold text-white">4</td>
+              <td class="whitespace-nowrap px-5 py-4">
+                <span
+                  class="inline-flex items-center gap-1.5 text-xs text-amber-400"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                  Low Stock
+                </span>
+              </td>
+            </tr>
+
+            <tr class="transition hover:bg-white/[0.02]">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-[#D4A853]"
+                  >
+                    <i class="fa fa-mobile"></i>
+                  </div>
+                  <span class="text-sm font-medium text-white"
+                    >Smartphone X</span
+                  >
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-300">
+                $620.00
+              </td>
+              <td class="px-4 py-4 text-sm font-semibold text-white">0</td>
+              <td class="whitespace-nowrap px-5 py-4">
+                <span
+                  class="inline-flex items-center gap-1.5 text-xs text-rose-400"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
+                  Out of Stock
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="border-t border-white/[0.06] px-5 py-4">
+        <p class="text-xs font-normal text-gray-500">
+          Sample inventory data — to be connected later.
+        </p>
+      </div>
+    </section>
+
+    <!-- Users Panel -->
+    <section
+      class="min-w-0 rounded-2xl border border-white/[0.07] bg-[#1C1C1C] p-5 shadow-lg shadow-black/20 sm:p-6"
+    >
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-white">Users</h2>
+          <p class="mt-1 text-xs font-normal text-gray-500">
+            Registered accounts
+          </p>
+        </div>
+
+        <div
+          class="flex h-11 w-11 items-center justify-center rounded-xl border border-[#D4A853]/20 bg-[#D4A853]/10 text-[#D4A853]"
+        >
+          <i class="fa fa-users text-lg"></i>
+        </div>
+      </div>
+
+      <!-- DATABASE: Total Users -->
+      <div
+        class="mt-5 flex items-center justify-between rounded-xl border border-white/[0.06] bg-[#222222] p-4"
+      >
+        <div>
+          <p class="text-xs font-medium text-gray-400">Total Users</p>
+          <p class="mt-2 text-3xl font-bold text-white">12</p>
+        </div>
+
+        <span
+          class="rounded-lg bg-[#D4A853]/10 px-3 py-2 text-xs font-semibold text-[#D4A853]"
+        >
+          <i class="fa fa-user mr-1"></i> Accounts
+        </span>
+      </div>
+
+      <div class="mb-3 mt-6 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-200">Latest Users</h3>
+        <span class="text-xs text-gray-500">Recent accounts</span>
+      </div>
+
+      <!-- DATABASE: Latest Registered Users -->
+      <div class="space-y-2">
+        <div
+          class="flex items-center gap-3 rounded-xl border border-white/[0.04] bg-[#222222] p-3 transition hover:border-[#D4A853]/20 hover:bg-[#26241F]"
+        >
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#D4A853]/10 text-[#D4A853]"
+          >
+            <i class="fa fa-user"></i>
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-white">
+              Ahmed Mohamed
+            </p>
+            <p class="mt-1 text-xs font-normal text-gray-500">
+              Registered user
+            </p>
+          </div>
+
+          <i class="fa fa-circle text-[7px] text-emerald-400"></i>
+        </div>
+
+        <div
+          class="flex items-center gap-3 rounded-xl border border-white/[0.04] bg-[#222222] p-3 transition hover:border-[#D4A853]/20 hover:bg-[#26241F]"
+        >
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#D4A853]/10 text-[#D4A853]"
+          >
+            <i class="fa fa-user"></i>
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-white">Omar Ali</p>
+            <p class="mt-1 text-xs font-normal text-gray-500">
+              Registered user
+            </p>
+          </div>
+
+          <i class="fa fa-circle text-[7px] text-emerald-400"></i>
+        </div>
+
+        <div
+          class="flex items-center gap-3 rounded-xl border border-white/[0.04] bg-[#222222] p-3 transition hover:border-[#D4A853]/20 hover:bg-[#26241F]"
+        >
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#D4A853]/10 text-[#D4A853]"
+          >
+            <i class="fa fa-user"></i>
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-white">Sara Hassan</p>
+            <p class="mt-1 text-xs font-normal text-gray-500">
+              Registered user
+            </p>
+          </div>
+
+          <i class="fa fa-circle text-[7px] text-emerald-400"></i>
+        </div>
+      </div>
+    </section>
+  </section>
+</div>
+
 {% endblock %}
