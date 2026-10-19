@@ -36,102 +36,189 @@
         <div>
           <h2 class="text-lg font-bold text-white">Sale Details</h2>
           <p class="mt-1 text-sm text-gray-500">
-            Enter the product and transaction details.
+            Enter customer and transaction details.
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Form Fields -->
-    <div class="space-y-6 p-5 sm:p-7">
-      <!-- Product -->
-      <div>
-        <label
-          for="product_id"
-          class="mb-2 block text-sm font-medium text-gray-300"
-        >
-          Product
-        </label>
-
-        <div class="relative">
-          <i
-            class="fa fa-cube absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-          ></i>
-
-          <select
-            id="product_id"
-            name="product_id"
-            required
-            class="w-full appearance-none rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-10 text-sm text-gray-400 outline-none transition focus:border-[#D4A853]"
-          >
-            <option value="" selected disabled>Select a product</option>
-          </select>
-
-          <i
-            class="fa fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-500"
-          ></i>
+    <div class="space-y-8 p-5 sm:p-7">
+      <!-- Customer Information -->
+      <section class="space-y-5">
+        <div class="flex items-center gap-3">
+          <i class="fa fa-user text-[#D4A853]"></i>
+          <h3 class="font-semibold text-white">Customer Information</h3>
         </div>
 
-        <p class="mt-2 text-xs text-gray-500">Select the product being sold.</p>
-      </div>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <!-- Customer Name -->
+          <div>
+            <label
+              for="customer_name"
+              class="mb-2 block text-sm font-medium text-gray-300"
+            >
+              Customer Name
+            </label>
 
-      <!-- Quantity and Unit Price -->
-      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div class="relative">
+              <i
+                class="fa fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              ></i>
+
+              <input
+                type="text"
+                id="customer_name"
+                name="customer_name"
+                placeholder="Enter customer name"
+                required
+                maxlength="100"
+                autocomplete="name"
+                class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-gray-600 outline-none transition focus:border-[#D4A853]"
+              />
+            </div>
+          </div>
+
+          <!-- Customer Phone -->
+          <div>
+            <label
+              for="customer_phone"
+              class="mb-2 block text-sm font-medium text-gray-300"
+            >
+              Phone Number
+            </label>
+
+            <div class="relative">
+              <i
+                class="fa fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              ></i>
+
+              <input
+                type="tel"
+                id="customer_phone"
+                name="customer_phone"
+                placeholder="Enter phone number"
+                required
+                maxlength="20"
+                autocomplete="tel"
+                class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-gray-600 outline-none transition focus:border-[#D4A853]"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="border-t border-white/[0.06]"></div>
+
+      <!-- Product Information -->
+      <section class="space-y-5">
+        <div class="flex items-center gap-3">
+          <i class="fa fa-cube text-[#D4A853]"></i>
+          <h3 class="font-semibold text-white">Product Information</h3>
+        </div>
+
+        <!-- Product -->
         <div>
           <label
-            for="quantity"
+            for="product_id"
             class="mb-2 block text-sm font-medium text-gray-300"
           >
-            Quantity
+            Product
           </label>
 
           <div class="relative">
             <i
-              class="fa fa-hashtag absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              class="fa fa-cube absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
             ></i>
 
-            <input
-              type="number"
-              id="quantity"
-              name="quantity"
-              min="1"
-              step="1"
-              placeholder="Enter quantity"
+            <select
+              id="product_id"
+              name="product_id"
               required
-              class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-gray-600 outline-none transition focus:border-[#D4A853]"
-            />
-          </div>
-        </div>
+              class="w-full appearance-none rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-10 text-sm text-gray-400 outline-none transition focus:border-[#D4A853]"
+            >
+              <option value="" selected disabled>Select a product</option>
 
-        <div>
-          <label
-            for="unit_price"
-            class="mb-2 block text-sm font-medium text-gray-300"
-          >
-            Unit Price
-          </label>
+              {% for product in products %}
+              <option value="{{ product['id'] }}">
+                {{ product['name'] }} — {{ product['price'] }}
+              </option>
+              {% endfor %}
+            </select>
 
-          <div class="relative">
             <i
-              class="fa fa-money absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              class="fa fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-500"
             ></i>
+          </div>
 
-            <input
-              type="number"
-              id="unit_price"
-              name="unit_price"
-              min="0.01"
-              step="0.01"
-              placeholder="0.00"
-              required
-              class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-gray-600 outline-none transition focus:border-[#D4A853]"
-            />
+          <p class="mt-2 text-xs text-gray-500">
+            Select a product from your inventory.
+          </p>
+        </div>
+
+        <!-- Quantity and Unit Price -->
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <label
+              for="quantity"
+              class="mb-2 block text-sm font-medium text-gray-300"
+            >
+              Quantity
+            </label>
+
+            <div class="relative">
+              <i
+                class="fa fa-hashtag absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              ></i>
+
+              <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                min="1"
+                step="1"
+                placeholder="Enter quantity"
+                required
+                class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-gray-600 outline-none transition focus:border-[#D4A853]"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              for="unit_price"
+              class="mb-2 block text-sm font-medium text-gray-300"
+            >
+              Unit Price
+            </label>
+
+            <div class="relative">
+              <i
+                class="fa fa-money absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              ></i>
+
+              <input
+                type="number"
+                id="unit_price"
+                name="unit_price"
+                min="0.01"
+                step="0.01"
+                placeholder="0.00"
+                required
+                class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-gray-600 outline-none transition focus:border-[#D4A853]"
+              />
+            </div>
+
+            <p class="mt-2 text-xs text-gray-500">
+              The server must verify the price against the selected product.
+            </p>
           </div>
         </div>
-      </div>
+      </section>
+
+      <div class="border-t border-white/[0.06]"></div>
 
       <!-- Payment Method -->
-      <div>
+      <section>
         <label
           for="payment_method"
           class="mb-2 block text-sm font-medium text-gray-300"
@@ -159,7 +246,7 @@
             class="fa fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-500"
           ></i>
         </div>
-      </div>
+      </section>
     </div>
 
     <!-- Invoice Summary -->
@@ -173,6 +260,11 @@
 
       <div class="space-y-3">
         <div class="flex items-center justify-between gap-4 text-sm">
+          <span class="text-gray-400">Customer</span>
+          <span class="font-medium text-gray-200">Entered above</span>
+        </div>
+
+        <div class="flex items-center justify-between gap-4 text-sm">
           <span class="text-gray-400">Quantity</span>
           <span class="font-medium text-gray-200">As entered</span>
         </div>
@@ -182,8 +274,8 @@
             <span class="text-sm font-semibold text-gray-300"
               >Total Amount</span
             >
-            <span class="text-2xl font-bold text-[#D4A853]"
-              >Calculated on submission</span
+            <span class="text-xl font-bold text-[#D4A853]"
+              >Calculated by server</span
             >
           </div>
         </div>
@@ -191,8 +283,8 @@
 
       <p class="mt-4 flex items-start gap-2 text-xs leading-5 text-gray-500">
         <i class="fa fa-info-circle mt-0.5 text-[#D4A853]"></i>
-        The sale should be validated and inventory updated by the server after
-        submission.
+        Customer information and the sale must be saved by the server. Inventory
+        should be updated only after the sale is validated.
       </p>
     </div>
 
@@ -218,7 +310,7 @@
     </div>
   </form>
 
-  <!-- Footer Note -->
+  <!-- Footer -->
   <p class="text-center text-xs text-gray-500">
     <i class="fa fa-shield mr-1 text-[#D4A853]"></i>
     Review the sale details before confirming the transaction.
