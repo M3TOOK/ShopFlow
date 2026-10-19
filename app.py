@@ -5,7 +5,6 @@ from flask import Flask, render_template, redirect, request
 app = Flask(__name__)
 
 
-# Database connection
 def get_db():
     db = sqlite3.connect("app.db")
     db.row_factory = sqlite3.Row
@@ -13,11 +12,9 @@ def get_db():
     return db
 
 
-# Database initialization
 def init_db():
     db = get_db()
 
-    # Users (Customers)
     db.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,20 +23,52 @@ def init_db():
         )
     """)
 
-    # Products
     db.execute("""
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
             name TEXT NOT NULL,
             price REAL NOT NULL CHECK (price > 0),
-            quantity INTEGER NOT NULL CHECK (quantity >= 0),
-            FOREIGN KEY (user_id) REFERENCES users(id)
+            quantity INTEGER NOT NULL CHECK (quantity >= 0)
         )
     """)
 
+    columns = [
+        row["name"]
+        for row in db.execute("PRAGMA table_info(products)").fetchall()
+    ]
 
-    # Sales (Invoices)
+    if "user_id" in columns:
+        db.execute("PRAGMA foreign_keys = OFF")
+        db.commit()
+
+        try:
+            db.execute("BEGIN")
+
+            db.execute("""
+                CREATE TABLE products_new (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    price REAL NOT NULL CHECK (price > 0),
+                    quantity INTEGER NOT NULL CHECK (quantity >= 0)
+                )
+            """)
+
+            db.execute("""
+                INSERT INTO products_new (id, name, price, quantity)
+                SELECT id, name, price, quantity FROM products
+            """)
+
+            db.execute("DROP TABLE products")
+            db.execute("ALTER TABLE products_new RENAME TO products")
+            db.commit()
+
+        except Exception:
+            db.rollback()
+            raise
+
+        finally:
+            db.execute("PRAGMA foreign_keys = ON")
+
     db.execute("""
         CREATE TABLE IF NOT EXISTS sales (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,13 +77,23 @@ def init_db():
                 CHECK (total_amount >= 0),
             paid_amount REAL NOT NULL DEFAULT 0
                 CHECK (paid_amount >= 0 AND paid_amount <= total_amount),
+            payment_method TEXT NOT NULL DEFAULT 'cash',
             date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
 
+    sales_columns = [
+        row["name"]
+        for row in db.execute("PRAGMA table_info(sales)").fetchall()
+    ]
 
-    # Sale Items
+    if "payment_method" not in sales_columns:
+        db.execute("""
+            ALTER TABLE sales
+            ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'cash'
+        """)
+
     db.execute("""
         CREATE TABLE IF NOT EXISTS sale_items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,7 +106,6 @@ def init_db():
         )
     """)
 
-    # Expenses
     db.execute("""
         CREATE TABLE IF NOT EXISTS expenses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,43 +121,62 @@ def init_db():
     db.close()
 
 
-# Dashboard
 @app.route("/")
 def dashboard():
     db = get_db()
 
-    usersCount = db.execute(
-        "SELECT COUNT(id) FROM users"
-    ).fetchone()[0]
-
-    users = db.execute("""
-        SELECT id, username, phone
-        FROM users
-    """).fetchall()
-
-    # Available balance = total sales - total expenses
     totalSales = db.execute("""
-        SELECT COALESCE(SUM(si.quantity * si.price_per_unit), 0)
-        FROM sale_items si
-        JOIN sales s ON si.sale_id = s.id
+        SELECT COALESCE(SUM(total_amount), 0) FROM sales
     """).fetchone()[0]
 
     totalExpenses = db.execute("""
-        SELECT COALESCE(SUM(amount), 0)
-        FROM expenses
+        SELECT COALESCE(SUM(amount), 0) FROM expenses
     """).fetchone()[0]
 
-    availableBalance = totalSales - totalExpenses
+    totalPaid = db.execute("""
+        SELECT COALESCE(SUM(paid_amount), 0) FROM sales
+    """).fetchone()[0]
+
+    availableBalance = totalPaid - totalExpenses
+
+    productsCount = db.execute("""
+        SELECT COUNT(*) FROM products
+    """).fetchone()[0]
+
+    lowStockCount = db.execute("""
+        SELECT COUNT(*) FROM products WHERE quantity <= 5
+    """).fetchone()[0]
+
+    recentSales = db.execute("""
+        SELECT
+            sales.id,
+            sales.date,
+            sales.total_amount,
+            sales.paid_amount,
+            users.username AS customer_name,
+            users.phone AS customer_phone
+        FROM sales
+        JOIN users ON users.id = sales.user_id
+        ORDER BY sales.id DESC
+        LIMIT 5
+    """).fetchall()
+
+    pendingPayments = db.execute("""
+    SELECT COALESCE(SUM(total_amount - paid_amount), 0)
+    FROM sales
+""").fetchone()[0]
 
     db.close()
 
     return render_template(
         "dashboard.html",
-        usersCount=usersCount,
-        users=users,
-        availableBalance=availableBalance
+        totalSales=totalSales,
+        availableBalance=availableBalance,
+        productsCount=productsCount,
+        lowStockCount=lowStockCount,
+        recentSales=recentSales,
+        pendingPayments=pendingPayments
     )
-
 
 
 @app.route("/products", methods=["GET", "POST"])
@@ -130,46 +187,39 @@ def products():
 
     if request.method == "POST":
         name = request.form.get("name", "").strip()
-        price = request.form.get("price", type=float)
-        quantity = request.form.get("quantity", type=int)
+        price = request.form.get("price", "").strip()
+        quantity = request.form.get("quantity", "").strip()
 
-        if not name or price is None or quantity is None:
-            error = "Please fill in all product fields."
-        elif price <= 0:
-            error = "Price must be greater than zero."
-        elif quantity < 0:
-            error = "Quantity cannot be negative."
-        else:
-            try:
-                # مؤقتًا: استخدم أول مستخدم موجود بسبب user_id الإجباري في جدول products.
-                owner = db.execute(
-                    "SELECT id FROM users ORDER BY id LIMIT 1"
-                ).fetchone()
+        try:
+            if not name:
+                raise ValueError("Product name is required.")
 
-                if owner is None:
-                    error = "Create a user before adding products."
-                else:
-                    db.execute(
-                        """
-                        INSERT INTO products (user_id, name, price, quantity)
-                        VALUES (?, ?, ?, ?)
-                        """,
-                        (owner["id"], name, price, quantity)
-                    )
-                    db.commit()
-                    success = "Product added successfully."
+            price = float(price)
+            quantity = int(quantity)
 
-            except sqlite3.IntegrityError:
-                db.rollback()
-                error = "Could not add this product."
+            if price <= 0:
+                raise ValueError("Price must be greater than zero.")
 
-    all_products = db.execute(
-        """
+            if quantity < 0:
+                raise ValueError("Quantity cannot be negative.")
+
+            db.execute("""
+                INSERT INTO products (name, price, quantity)
+                VALUES (?, ?, ?)
+            """, (name, price, quantity))
+
+            db.commit()
+            success = "Product added successfully."
+
+        except (ValueError, TypeError):
+            db.rollback()
+            error = "Enter a valid name, price, and quantity."
+
+    all_products = db.execute("""
         SELECT id, name, price, quantity
         FROM products
         ORDER BY id DESC
-        """
-    ).fetchall()
+    """).fetchall()
 
     db.close()
 
@@ -181,154 +231,156 @@ def products():
     )
 
 
-
 @app.route("/sales", methods=["GET", "POST"])
 def sales():
     db = get_db()
+    error = None
 
-    # Show the sale form
-    if request.method == "GET":
-        products = db.execute("""
-            SELECT id, name, price, quantity
-            FROM products
-            ORDER BY name
-        """).fetchall()
-
-        db.close()
-        return render_template("sales.html", products=products)
-
-    try:
-        # 1. Read form data
+    if request.method == "POST":
         customer_name = request.form.get("customer_name", "").strip()
         customer_phone = request.form.get("customer_phone", "").strip()
-        product_id = request.form.get("product_id", type=int)
-        quantity = request.form.get("quantity", type=int)
-        paid_amount = request.form.get("paid_amount", type=float)
+        product_id = request.form.get("product_id", "").strip()
+        quantity = request.form.get("quantity", "").strip()
+        paid_amount = request.form.get("paid_amount", "").strip()
+        payment_method = request.form.get("payment_method", "cash").strip()
 
-        if (
-            not customer_name
-            or not customer_phone
-            or not product_id
-            or quantity is None
-            or quantity < 1
-            or paid_amount is None
-            or paid_amount < 0
-        ):
-            raise ValueError("Please enter valid sale information.")
+        try:
+            if not customer_name or not customer_phone:
+                raise ValueError("Customer name and phone are required.")
 
-        # 2. Get the selected product from the database
-        product = db.execute("""
-            SELECT id, name, price, quantity
-            FROM products
-            WHERE id = ?
-        """, (product_id,)).fetchone()
+            product_id = int(product_id)
+            quantity = int(quantity)
+            paid_amount = round(float(paid_amount), 2)
 
-        if product is None:
-            raise ValueError("Product not found.")
+            if quantity <= 0:
+                raise ValueError("Quantity must be greater than zero.")
 
-        if quantity > product["quantity"]:
-            raise ValueError("Not enough stock available.")
+            if paid_amount < 0:
+                raise ValueError("Paid amount cannot be negative.")
 
-        # Always calculate using the database price
-        total_amount = round(product["price"] * quantity, 2)
+            if payment_method not in ("cash", "card"):
+                raise ValueError("Invalid payment method.")
 
-        if paid_amount > total_amount:
-            raise ValueError("Paid amount cannot exceed total amount.")
+            product = db.execute("""
+                SELECT id, price, quantity
+                FROM products
+                WHERE id = ?
+            """, (product_id,)).fetchone()
 
-        # 3. Find the customer by phone, or create a new one
-        customer = db.execute("""
-            SELECT id
-            FROM users
-            WHERE phone = ?
-        """, (customer_phone,)).fetchone()
+            if product is None:
+                raise ValueError("Product not found.")
 
-        if customer:
-            customer_id = customer["id"]
-        else:
+            if quantity > product["quantity"]:
+                raise ValueError("Not enough stock available.")
+
+            total_amount = round(product["price"] * quantity, 2)
+
+            if paid_amount > total_amount:
+                raise ValueError("Paid amount cannot exceed total amount.")
+
+            customer = db.execute("""
+                SELECT id FROM users WHERE phone = ?
+            """, (customer_phone,)).fetchone()
+
+            if customer:
+                customer_id = customer["id"]
+
+                db.execute("""
+                    UPDATE users SET username = ? WHERE id = ?
+                """, (customer_name, customer_id))
+            else:
+                db.execute("""
+                    INSERT INTO users (username, phone)
+                    VALUES (?, ?)
+                """, (customer_name, customer_phone))
+
+                customer_id = db.execute("""
+                    SELECT id FROM users WHERE phone = ?
+                """, (customer_phone,)).fetchone()["id"]
+
             cursor = db.execute("""
-                INSERT INTO users (username, phone)
-                VALUES (?, ?)
-            """, (customer_name, customer_phone))
+                INSERT INTO sales
+                    (user_id, total_amount, paid_amount, payment_method)
+                VALUES (?, ?, ?, ?)
+            """, (
+                customer_id,
+                total_amount,
+                paid_amount,
+                payment_method
+            ))
 
-            customer_id = cursor.lastrowid
+            sale_id = cursor.lastrowid
 
-        # 4. Create the invoice
-        cursor = db.execute("""
-            INSERT INTO sales (
-                user_id, total_amount, paid_amount
-            )
-            VALUES (?, ?, ?)
-        """, (customer_id, total_amount, paid_amount))
+            db.execute("""
+                INSERT INTO sale_items
+                    (sale_id, product_id, quantity, price_per_unit)
+                VALUES (?, ?, ?, ?)
+            """, (
+                sale_id,
+                product_id,
+                quantity,
+                product["price"]
+            ))
 
-        sale_id = cursor.lastrowid
+            result = db.execute("""
+                UPDATE products
+                SET quantity = quantity - ?
+                WHERE id = ? AND quantity >= ?
+            """, (quantity, product_id, quantity))
 
-        # 5. Add the product to the invoice
-        db.execute("""
-            INSERT INTO sale_items (
-                sale_id, product_id, quantity, price_per_unit
-            )
-            VALUES (?, ?, ?, ?)
-        """, (
-            sale_id,
-            product_id,
-            quantity,
-            product["price"]
-        ))
+            if result.rowcount != 1:
+                raise ValueError("Not enough stock available.")
 
-        # 6. Reduce inventory only if enough stock remains
-        result = db.execute("""
-            UPDATE products
-            SET quantity = quantity - ?
-            WHERE id = ? AND quantity >= ?
-        """, (quantity, product_id, quantity))
+            db.commit()
+            db.close()
 
-        if result.rowcount != 1:
-            raise ValueError("Stock changed. Please try again.")
+            return redirect("/sales")
 
-        # Commit all changes together
-        db.commit()
+        except (ValueError, TypeError, sqlite3.IntegrityError) as e:
+            db.rollback()
+            error = str(e) or "Unable to complete the sale."
 
-        return redirect("/sales")
+    all_products = db.execute("""
+        SELECT id, name, price, quantity
+        FROM products
+        ORDER BY name
+    """).fetchall()
 
-    except (ValueError, TypeError) as error:
-        db.rollback()
+    db.close()
 
-        products = db.execute("""
-            SELECT id, name, price, quantity
-            FROM products
-            ORDER BY name
-        """).fetchall()
-
-        return render_template(
-            "sales.html",
-            products=products,
-            error=str(error)
-        ), 400
-
-    except sqlite3.IntegrityError:
-        db.rollback()
-
-        products = db.execute("""
-            SELECT id, name, price, quantity
-            FROM products
-            ORDER BY name
-        """).fetchall()
-
-        return render_template(
-            "sales.html",
-            products=products,
-            error="Could not save the sale. Check the customer information."
-        ), 400
-
-    finally:
-        db.close()
+    return render_template(
+        "sales.html",
+        products=all_products,
+        error=error
+    ), 400 if error else 200
 
 
-# History
 @app.route("/history")
 def history():
-    return render_template("history.html")
+    db = get_db()
+
+    sales_history = db.execute("""
+        SELECT
+            sales.id,
+            sales.date,
+            sales.total_amount,
+            sales.paid_amount,
+            sales.payment_method,
+            users.username AS customer_name,
+            users.phone AS customer_phone
+        FROM sales
+        JOIN users ON users.id = sales.user_id
+        ORDER BY sales.id DESC
+    """).fetchall()
+
+    db.close()
+
+    return render_template(
+        "history.html",
+        sales=sales_history
+    )
 
 
-# Initialize database tables
-init_db()
+if __name__ == "__main__":
+    init_db()
+    app.run(debug=True)

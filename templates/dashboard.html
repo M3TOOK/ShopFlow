@@ -3,412 +3,271 @@
 <div class="mx-auto max-w-[1600px] space-y-8">
   <!-- Header -->
   <header
-    class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
+    class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
   >
     <div>
       <p
         class="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#D4A853]"
       >
-        ShopFlow Management
+        Overview
       </p>
-
       <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
         Dashboard
       </h1>
-
-      <p class="mt-2 text-sm font-normal text-gray-400">
-        Monitor your business performance and inventory.
+      <p class="mt-2 text-sm text-gray-400">
+        Here's an overview of your shop's performance.
       </p>
     </div>
 
     <a
-      href="/products"
-      class="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-[#111111] shadow-lg shadow-[#D4A853]/10 transition hover:-translate-y-0.5 hover:bg-[#e5bd70] sm:self-auto"
+      href="{{ url_for('sales') }}"
+      class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-[#111111] transition hover:bg-[#e5bd70]"
     >
-      <i class="fa fa-cubes"></i>
-      Manage Products
+      <i class="fa fa-plus"></i>
+      New Sale
     </a>
   </header>
 
-  <!-- Statistics Cards -->
-  <section class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-    <!-- DATABASE: Available Balance -->
-    <article
-      class="group relative overflow-hidden rounded-2xl border border-emerald-500/10 bg-[#1C1C1C] p-5 shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:border-emerald-500/30"
-    >
-      <div
-        class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-500/[0.07] blur-2xl"
-      ></div>
-
-      <div class="relative flex items-center justify-between">
-        <div>
-          <p class="text-sm font-medium text-gray-400">Available Balance</p>
-          <h2 class="mt-4 text-2xl font-bold text-white">$0.00</h2>
-        </div>
-
+  <!-- Main Statistics -->
+  <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <!-- Available Balance -->
+    <div class="rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5 sm:p-6">
+      <div class="flex items-center justify-between">
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+          class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#D4A853]/10"
         >
-          <i class="fa fa-credit-card text-xl"></i>
+          <i class="fa fa-credit-card text-lg text-[#D4A853]"></i>
         </div>
+        <span class="text-xs text-gray-500">Net balance</span>
       </div>
 
-      <div class="relative mt-5 border-t border-white/[0.06] pt-4">
-        <p class="text-xs font-normal text-gray-500">Current store balance</p>
-      </div>
-    </article>
+      <p class="mt-5 text-sm text-gray-400">Available Balance</p>
+      <p class="mt-2 break-words text-2xl font-bold text-white">
+        {{ "%.2f"|format(availableBalance) }}
+        <span class="text-sm font-medium text-gray-500">EGP</span>
+      </p>
+      <p class="mt-3 text-xs text-gray-500">Payments received minus expenses</p>
+    </div>
 
-    <!-- DATABASE: Pending Money -->
-    <article
-      class="group relative overflow-hidden rounded-2xl border border-rose-500/10 bg-[#1C1C1C] p-5 shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:border-rose-500/30"
-    >
-      <div
-        class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-rose-500/[0.07] blur-2xl"
-      ></div>
-
-      <div class="relative flex items-center justify-between">
-        <div>
-          <p class="text-sm font-medium text-gray-400">Pending Money</p>
-          <h2 class="mt-4 text-2xl font-bold text-white">$0.00</h2>
-        </div>
-
+    <!-- Total Sales -->
+    <div class="rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5 sm:p-6">
+      <div class="flex items-center justify-between">
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-400"
+          class="flex h-11 w-11 items-center justify-center rounded-xl bg-green-500/10"
         >
-          <i class="fa fa-clock-o text-xl"></i>
+          <i class="fa fa-line-chart text-lg text-green-400"></i>
         </div>
+        <i class="fa fa-arrow-up text-xs text-green-400"></i>
       </div>
 
-      <div class="relative mt-5 border-t border-white/[0.06] pt-4">
-        <p class="text-xs font-normal text-gray-500">
-          Payments awaiting collection
-        </p>
-      </div>
-    </article>
+      <p class="mt-5 text-sm text-gray-400">Total Sales</p>
+      <p class="mt-2 break-words text-2xl font-bold text-white">
+        {{ "%.2f"|format(totalSales) }}
+        <span class="text-sm font-medium text-gray-500">EGP</span>
+      </p>
+      <p class="mt-3 text-xs text-gray-500">Value of all recorded invoices</p>
+    </div>
 
-    <!-- DATABASE: Total Products -->
-    <article
-      class="group relative overflow-hidden rounded-2xl border border-sky-500/10 bg-[#1C1C1C] p-5 shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:border-sky-500/30"
-    >
-      <div
-        class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-sky-500/[0.07] blur-2xl"
-      ></div>
-
-      <div class="relative flex items-center justify-between">
-        <div>
-          <p class="text-sm font-medium text-gray-400">Total Products</p>
-          <h2 class="mt-4 text-2xl font-bold text-white">128</h2>
-        </div>
-
+    <!-- Expenses -->
+    <div class="rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5 sm:p-6">
+      <div class="flex items-center justify-between">
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/10 text-sky-400"
+          class="flex h-11 w-11 items-center justify-center rounded-xl bg-red-500/10"
         >
-          <i class="fa fa-cubes text-xl"></i>
+          <i class="fa fa-clock-o text-lg text-red-400"></i>
         </div>
       </div>
 
-      <div class="relative mt-5 border-t border-white/[0.06] pt-4">
-        <p class="text-xs font-normal text-gray-500">
-          Products in your inventory
-        </p>
-      </div>
-    </article>
+      <p class="mt-5 text-sm text-gray-400">Pending Mony</p>
+      <p class="mt-2 break-words text-2xl font-bold text-white">
+        {{ "%.2f"|format(pendingPayments) }}
+        <span class="text-sm font-medium text-gray-500">EGP</span>
+      </p>
+      <p class="mt-3 text-xs text-gray-500">Pending users Mony</p>
+    </div>
 
-    <!-- DATABASE: Total Sales -->
-    <article
-      class="group relative overflow-hidden rounded-2xl border border-[#D4A853]/15 bg-gradient-to-br from-[#282319] to-[#1C1C1C] p-5 shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:border-[#D4A853]/40"
-    >
-      <div
-        class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-[#D4A853]/[0.09] blur-2xl"
-      ></div>
-
-      <div class="relative flex items-center justify-between">
-        <div>
-          <p class="text-sm font-medium text-gray-400">Total Sales</p>
-          <h2 class="mt-4 text-2xl font-bold text-white">$0.00</h2>
-        </div>
-
+    <!-- Products -->
+    <div class="rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5 sm:p-6">
+      <div class="flex items-center justify-between">
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#D4A853]/20 bg-[#D4A853]/10 text-[#D4A853]"
+          class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10"
         >
-          <i class="fa fa-line-chart text-xl"></i>
+          <i class="fa fa-cubes text-lg text-blue-400"></i>
         </div>
+        <span class="text-xs text-gray-500">Inventory</span>
       </div>
 
-      <div class="relative mt-5 border-t border-white/[0.06] pt-4">
-        <p class="text-xs font-normal text-gray-400">Total recorded revenue</p>
-      </div>
-    </article>
+      <p class="mt-5 text-sm text-gray-400">Total Products</p>
+      <p class="mt-2 text-3xl font-bold text-white">{{ productsCount }}</p>
+      <p class="mt-3 text-xs text-gray-500">
+        {{ lowStockCount }} products low or out of stock
+      </p>
+    </div>
   </section>
 
-  <!-- Products + Users -->
-  <section class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
-    <!-- Products Panel -->
-    <section
-      class="min-w-0 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#1C1C1C] shadow-lg shadow-black/20"
+  <!-- Quick Actions -->
+  <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <a
+      href="{{ url_for('products') }}"
+      class="group flex items-center gap-4 rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5 transition hover:border-[#D4A853]/40"
     >
-      <div class="flex items-center justify-between gap-3 p-5 sm:p-6">
-        <div>
-          <h2 class="text-lg font-bold text-white">Products</h2>
-          <p class="mt-1 text-xs font-normal text-gray-500">
-            Inventory overview
-          </p>
-        </div>
-
-        <a
-          href="/products"
-          class="inline-flex items-center gap-2 rounded-lg border border-[#D4A853]/20 bg-[#D4A853]/[0.08] px-3 py-2 text-xs font-semibold text-[#D4A853] transition hover:bg-[#D4A853]/15"
-        >
-          View All <i class="fa fa-arrow-right"></i>
-        </a>
+      <div
+        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#D4A853]/10"
+      >
+        <i class="fa fa-cube text-lg text-[#D4A853]"></i>
       </div>
-
-      <!-- DATABASE: Product Statistics -->
-      <div class="mx-5 mb-5 grid grid-cols-2 gap-3 sm:mx-6">
-        <div class="rounded-xl border border-white/[0.06] bg-[#222222] p-3">
-          <p class="text-xs font-medium text-gray-400">Product Types</p>
-          <p class="mt-2 text-xl font-bold text-white">128</p>
-        </div>
-
-        <div class="rounded-xl border border-white/[0.06] bg-[#222222] p-3">
-          <p class="text-xs font-medium text-gray-400">Low Stock</p>
-          <p class="mt-2 text-xl font-bold text-amber-400">8</p>
-        </div>
+      <div class="min-w-0 flex-1">
+        <h3 class="font-semibold text-white">Manage Products</h3>
+        <p class="mt-1 text-sm text-gray-500">View and add inventory</p>
       </div>
+      <i
+        class="fa fa-arrow-right text-sm text-gray-500 transition group-hover:text-[#D4A853]"
+      ></i>
+    </a>
 
-      <!-- DATABASE: Latest Products -->
-      <div class="overflow-x-auto">
-        <table class="w-full min-w-[470px] text-left">
-          <thead class="border-y border-white/[0.06] bg-[#222222]">
-            <tr
-              class="text-[10px] font-semibold uppercase tracking-wider text-gray-500"
-            >
-              <th class="px-5 py-3">Product</th>
-              <th class="px-4 py-3">Unit Price</th>
-              <th class="px-4 py-3">Quantity</th>
-              <th class="px-5 py-3">Status</th>
-            </tr>
-          </thead>
-
-          <tbody class="divide-y divide-white/[0.05]">
-            <tr class="transition hover:bg-white/[0.02]">
-              <td class="px-5 py-4">
-                <div class="flex items-center gap-2.5">
-                  <div
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-[#D4A853]"
-                  >
-                    <i class="fa fa-laptop"></i>
-                  </div>
-                  <span class="text-sm font-medium text-white">Laptop Pro</span>
-                </div>
-              </td>
-              <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-300">
-                $850.00
-              </td>
-              <td class="px-4 py-4 text-sm font-semibold text-white">24</td>
-              <td class="whitespace-nowrap px-5 py-4">
-                <span
-                  class="inline-flex items-center gap-1.5 text-xs text-emerald-400"
-                >
-                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                  In Stock
-                </span>
-              </td>
-            </tr>
-
-            <tr class="transition hover:bg-white/[0.02]">
-              <td class="px-5 py-4">
-                <div class="flex items-center gap-2.5">
-                  <div
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-[#D4A853]"
-                  >
-                    <i class="fa fa-headphones"></i>
-                  </div>
-                  <span class="text-sm font-medium text-white"
-                    >Wireless Headphones</span
-                  >
-                </div>
-              </td>
-              <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-300">
-                $75.00
-              </td>
-              <td class="px-4 py-4 text-sm font-semibold text-white">42</td>
-              <td class="whitespace-nowrap px-5 py-4">
-                <span
-                  class="inline-flex items-center gap-1.5 text-xs text-emerald-400"
-                >
-                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                  In Stock
-                </span>
-              </td>
-            </tr>
-
-            <tr class="transition hover:bg-white/[0.02]">
-              <td class="px-5 py-4">
-                <div class="flex items-center gap-2.5">
-                  <div
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-[#D4A853]"
-                  >
-                    <i class="fa fa-keyboard-o"></i>
-                  </div>
-                  <span class="text-sm font-medium text-white"
-                    >Mechanical Keyboard</span
-                  >
-                </div>
-              </td>
-              <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-300">
-                $95.00
-              </td>
-              <td class="px-4 py-4 text-sm font-semibold text-white">4</td>
-              <td class="whitespace-nowrap px-5 py-4">
-                <span
-                  class="inline-flex items-center gap-1.5 text-xs text-amber-400"
-                >
-                  <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
-                  Low Stock
-                </span>
-              </td>
-            </tr>
-
-            <tr class="transition hover:bg-white/[0.02]">
-              <td class="px-5 py-4">
-                <div class="flex items-center gap-2.5">
-                  <div
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-[#D4A853]"
-                  >
-                    <i class="fa fa-mobile"></i>
-                  </div>
-                  <span class="text-sm font-medium text-white"
-                    >Smartphone X</span
-                  >
-                </div>
-              </td>
-              <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-300">
-                $620.00
-              </td>
-              <td class="px-4 py-4 text-sm font-semibold text-white">0</td>
-              <td class="whitespace-nowrap px-5 py-4">
-                <span
-                  class="inline-flex items-center gap-1.5 text-xs text-rose-400"
-                >
-                  <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
-                  Out of Stock
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <a
+      href="{{ url_for('sales') }}"
+      class="group flex items-center gap-4 rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5 transition hover:border-[#D4A853]/40"
+    >
+      <div
+        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-500/10"
+      >
+        <i class="fa fa-shopping-cart text-lg text-green-400"></i>
       </div>
+      <div class="min-w-0 flex-1">
+        <h3 class="font-semibold text-white">Create a Sale</h3>
+        <p class="mt-1 text-sm text-gray-500">Record a new transaction</p>
+      </div>
+      <i
+        class="fa fa-arrow-right text-sm text-gray-500 transition group-hover:text-[#D4A853]"
+      ></i>
+    </a>
 
-      <div class="border-t border-white/[0.06] px-5 py-4">
-        <p class="text-xs font-normal text-gray-500">
-          Sample inventory data — to be connected later.
+    <a
+      href="{{ url_for('history') }}"
+      class="group flex items-center gap-4 rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5 transition hover:border-[#D4A853]/40"
+    >
+      <div
+        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-500/10"
+      >
+        <i class="fa fa-history text-lg text-blue-400"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <h3 class="font-semibold text-white">Sales History</h3>
+        <p class="mt-1 text-sm text-gray-500">Review previous invoices</p>
+      </div>
+      <i
+        class="fa fa-arrow-right text-sm text-gray-500 transition group-hover:text-[#D4A853]"
+      ></i>
+    </a>
+  </section>
+
+  <!-- Recent Transactions -->
+  <section
+    class="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1C1C1C]"
+  >
+    <div
+      class="flex flex-col gap-3 border-b border-white/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
+    >
+      <div>
+        <h2 class="text-lg font-bold text-white">Recent Transactions</h2>
+        <p class="mt-1 text-sm text-gray-500">
+          The latest sales recorded in your shop.
         </p>
       </div>
-    </section>
 
-    <!-- Users Panel -->
-    <section
-      class="min-w-0 rounded-2xl border border-white/[0.07] bg-[#1C1C1C] p-5 shadow-lg shadow-black/20 sm:p-6"
-    >
-      <div class="flex items-center justify-between gap-3">
-        <div>
-          <h2 class="text-lg font-bold text-white">Users</h2>
-          <p class="mt-1 text-xs font-normal text-gray-500">
-            Registered accounts
-          </p>
-        </div>
-
-        <div
-          class="flex h-11 w-11 items-center justify-center rounded-xl border border-[#D4A853]/20 bg-[#D4A853]/10 text-[#D4A853]"
-        >
-          <i class="fa fa-users text-lg"></i>
-        </div>
-      </div>
-
-      <!-- DATABASE: Total Users -->
-      <div
-        class="mt-5 flex items-center justify-between rounded-xl border border-white/[0.06] bg-[#222222] p-4"
+      <a
+        href="{{ url_for('history') }}"
+        class="text-sm font-semibold text-[#D4A853] transition hover:text-[#e5bd70]"
       >
-        <div>
-          <p class="text-xs font-medium text-gray-400">Total Users</p>
-          <p class="mt-2 text-3xl font-bold text-white">12</p>
-        </div>
+        View All <i class="fa fa-arrow-right ml-1"></i>
+      </a>
+    </div>
 
-        <span
-          class="rounded-lg bg-[#D4A853]/10 px-3 py-2 text-xs font-semibold text-[#D4A853]"
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[700px] text-left text-sm">
+        <thead
+          class="bg-[#151515] text-xs uppercase tracking-wider text-gray-500"
         >
-          <i class="fa fa-user mr-1"></i> Accounts
-        </span>
-      </div>
+          <tr>
+            <th class="px-6 py-4 font-semibold">Invoice</th>
+            <th class="px-6 py-4 font-semibold">Customer</th>
+            <th class="px-6 py-4 font-semibold">Date</th>
+            <th class="px-6 py-4 font-semibold">Amount</th>
+            <th class="px-6 py-4 font-semibold">Status</th>
+          </tr>
+        </thead>
 
-      <div class="mb-3 mt-6 flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-gray-200">Latest Users</h3>
-        <span class="text-xs text-gray-500">Recent accounts</span>
-      </div>
+        <tbody class="divide-y divide-white/[0.05]">
+          {% for sale in recentSales %} {% set pending = sale['total_amount'] -
+          sale['paid_amount'] %}
 
-      <!-- DATABASE: Latest Registered Users -->
-      <div class="space-y-2">
-        <div
-          class="flex items-center gap-3 rounded-xl border border-white/[0.04] bg-[#222222] p-3 transition hover:border-[#D4A853]/20 hover:bg-[#26241F]"
-        >
-          <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#D4A853]/10 text-[#D4A853]"
-          >
-            <i class="fa fa-user"></i>
-          </div>
+          <tr class="transition hover:bg-white/[0.02]">
+            <td class="px-6 py-5 font-semibold text-[#D4A853]">
+              #{{ sale['id'] }}
+            </td>
 
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-semibold text-white">
-              Ahmed Mohamed
-            </p>
-            <p class="mt-1 text-xs font-normal text-gray-500">
-              Registered user
-            </p>
-          </div>
+            <td class="px-6 py-5">
+              <p class="font-medium text-white">{{ sale['customer_name'] }}</p>
+              <p class="mt-1 text-xs text-gray-500">
+                {{ sale['customer_phone'] }}
+              </p>
+            </td>
 
-          <i class="fa fa-circle text-[7px] text-emerald-400"></i>
-        </div>
+            <td class="px-6 py-5 text-gray-400">{{ sale['date'] }}</td>
 
-        <div
-          class="flex items-center gap-3 rounded-xl border border-white/[0.04] bg-[#222222] p-3 transition hover:border-[#D4A853]/20 hover:bg-[#26241F]"
-        >
-          <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#D4A853]/10 text-[#D4A853]"
-          >
-            <i class="fa fa-user"></i>
-          </div>
+            <td class="px-6 py-5 font-semibold text-white">
+              {{ "%.2f"|format(sale['total_amount']) }} EGP
+            </td>
 
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-semibold text-white">Omar Ali</p>
-            <p class="mt-1 text-xs font-normal text-gray-500">
-              Registered user
-            </p>
-          </div>
+            <td class="px-6 py-5">
+              {% if pending <= 0.009 %}
+              <span
+                class="rounded-full bg-green-500/10 px-3 py-1.5 text-xs font-semibold text-green-400"
+              >
+                Paid
+              </span>
+              {% elif sale['paid_amount'] > 0 %}
+              <span
+                class="rounded-full bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-400"
+              >
+                Partial
+              </span>
+              {% else %}
+              <span
+                class="rounded-full bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-400"
+              >
+                Unpaid
+              </span>
+              {% endif %}
+            </td>
+          </tr>
 
-          <i class="fa fa-circle text-[7px] text-emerald-400"></i>
-        </div>
+          {% else %}
+          <tr>
+            <td colspan="5" class="px-6 py-16 text-center">
+              <i class="fa fa-inbox text-3xl text-gray-600"></i>
+              <p class="mt-4 font-medium text-gray-300">No transactions yet</p>
+              <p class="mt-2 text-sm text-gray-500">
+                Your latest sales will appear here.
+              </p>
+              <a
+                href="{{ url_for('sales') }}"
+                class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#D4A853] hover:text-[#e5bd70]"
+              >
+                <i class="fa fa-plus"></i>
+                Create your first sale
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-        <div
-          class="flex items-center gap-3 rounded-xl border border-white/[0.04] bg-[#222222] p-3 transition hover:border-[#D4A853]/20 hover:bg-[#26241F]"
-        >
-          <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#D4A853]/10 text-[#D4A853]"
-          >
-            <i class="fa fa-user"></i>
-          </div>
-
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-semibold text-white">Sara Hassan</p>
-            <p class="mt-1 text-xs font-normal text-gray-500">
-              Registered user
-            </p>
-          </div>
-
-          <i class="fa fa-circle text-[7px] text-emerald-400"></i>
-        </div>
-      </div>
-    </section>
+    <div class="border-t border-white/[0.06] px-6 py-4 text-xs text-gray-500">
+      Showing {{ recentSales|length }} recent transaction(s)
+    </div>
   </section>
 </div>
 

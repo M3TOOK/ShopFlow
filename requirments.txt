@@ -1,0 +1,7 @@
+Python
+Flask
+SQLite3
+HTML
+CSS
+JavaScript
+Tailwind CSS
