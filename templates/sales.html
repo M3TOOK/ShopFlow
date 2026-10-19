@@ -1,11 +1,12 @@
-{% extends "base.html" %} {% block main %}
+
+{% extends "base.html" %}
+{% block main %}
 
 <div class="mx-auto max-w-[1600px] space-y-8">
+
   <!-- Header -->
   <header>
-    <p
-      class="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#D4A853]"
-    >
+    <p class="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#D4A853]">
       Sales Management
     </p>
 
@@ -18,18 +19,29 @@
     </p>
   </header>
 
+  <!-- Flask Error Message -->
+  {% if error %}
+  <div
+    class="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400"
+    role="alert"
+  >
+    <i class="fa fa-exclamation-circle mr-2"></i>
+    {{ error }}
+  </div>
+  {% endif %}
+
   <!-- Sale Form -->
   <form
-    action="/sales"
+    action="{{ url_for('sales') }}"
     method="POST"
+    id="sale_form"
     class="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1C1C1C]"
   >
+
     <!-- Form Header -->
     <div class="border-b border-white/[0.06] p-5 sm:p-7">
       <div class="flex items-center gap-4">
-        <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#D4A853]/20 bg-[#D4A853]/10"
-        >
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#D4A853]/20 bg-[#D4A853]/10">
           <i class="fa fa-shopping-cart text-xl text-[#D4A853]"></i>
         </div>
 
@@ -43,6 +55,7 @@
     </div>
 
     <div class="space-y-8 p-5 sm:p-7">
+
       <!-- Customer Information -->
       <section class="space-y-5">
         <div class="flex items-center gap-3">
@@ -51,25 +64,22 @@
         </div>
 
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
           <!-- Customer Name -->
           <div>
-            <label
-              for="customer_name"
-              class="mb-2 block text-sm font-medium text-gray-300"
-            >
+            <label for="customer_name" class="mb-2 block text-sm font-medium text-gray-300">
               Customer Name
             </label>
 
             <div class="relative">
-              <i
-                class="fa fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-              ></i>
+              <i class="fa fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
 
               <input
                 type="text"
                 id="customer_name"
                 name="customer_name"
                 placeholder="Enter customer name"
+                value="{{ request.form.get('customer_name', '') }}"
                 required
                 maxlength="100"
                 autocomplete="name"
@@ -80,23 +90,19 @@
 
           <!-- Customer Phone -->
           <div>
-            <label
-              for="customer_phone"
-              class="mb-2 block text-sm font-medium text-gray-300"
-            >
+            <label for="customer_phone" class="mb-2 block text-sm font-medium text-gray-300">
               Phone Number
             </label>
 
             <div class="relative">
-              <i
-                class="fa fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-              ></i>
+              <i class="fa fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
 
               <input
                 type="tel"
                 id="customer_phone"
                 name="customer_phone"
                 placeholder="Enter phone number"
+                value="{{ request.form.get('customer_phone', '') }}"
                 required
                 maxlength="20"
                 autocomplete="tel"
@@ -104,6 +110,7 @@
               />
             </div>
           </div>
+
         </div>
       </section>
 
@@ -116,59 +123,63 @@
           <h3 class="font-semibold text-white">Product Information</h3>
         </div>
 
-        <!-- Product -->
+        <!-- Product Select -->
         <div>
-          <label
-            for="product_id"
-            class="mb-2 block text-sm font-medium text-gray-300"
-          >
+          <label for="product_id" class="mb-2 block text-sm font-medium text-gray-300">
             Product
           </label>
 
           <div class="relative">
-            <i
-              class="fa fa-cube absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-            ></i>
+            <i class="fa fa-cube absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
 
             <select
               id="product_id"
               name="product_id"
               required
-              class="w-full appearance-none rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-10 text-sm text-gray-400 outline-none transition focus:border-[#D4A853]"
+              class="w-full appearance-none rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-10 text-sm text-gray-300 outline-none transition focus:border-[#D4A853]"
             >
-              <option value="" selected disabled>Select a product</option>
+              <option
+                value=""
+                disabled
+                {% if not request.form.get('product_id') %}selected{% endif %}
+              >
+                Select a product
+              </option>
 
               {% for product in products %}
-              <option value="{{ product['id'] }}">
-                {{ product['name'] }} — {{ product['price'] }}
+              <option
+                value="{{ product['id'] }}"
+                data-price="{{ product['price'] }}"
+                data-stock="{{ product['quantity'] }}"
+                {% if request.form.get('product_id', '')|string == product['id']|string %}
+                  selected
+                {% endif %}
+              >
+                {{ product['name'] }} —
+                {{ "%.2f"|format(product['price']) }} EGP
+                (Stock: {{ product['quantity'] }})
               </option>
               {% endfor %}
             </select>
 
-            <i
-              class="fa fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-500"
-            ></i>
+            <i class="fa fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-500"></i>
           </div>
 
-          <p class="mt-2 text-xs text-gray-500">
+          <p id="stock_message" class="mt-2 text-xs text-gray-500">
             Select a product from your inventory.
           </p>
         </div>
 
         <!-- Quantity and Unit Price -->
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
           <div>
-            <label
-              for="quantity"
-              class="mb-2 block text-sm font-medium text-gray-300"
-            >
+            <label for="quantity" class="mb-2 block text-sm font-medium text-gray-300">
               Quantity
             </label>
 
             <div class="relative">
-              <i
-                class="fa fa-hashtag absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-              ></i>
+              <i class="fa fa-hashtag absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
 
               <input
                 type="number"
@@ -176,25 +187,21 @@
                 name="quantity"
                 min="1"
                 step="1"
-                placeholder="Enter quantity"
+                value="{{ request.form.get('quantity', 1) }}"
                 required
+                placeholder="Enter quantity"
                 class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-gray-600 outline-none transition focus:border-[#D4A853]"
               />
             </div>
           </div>
 
           <div>
-            <label
-              for="unit_price"
-              class="mb-2 block text-sm font-medium text-gray-300"
-            >
-              Unit Price
+            <label for="unit_price" class="mb-2 block text-sm font-medium text-gray-300">
+              Unit Price (EGP)
             </label>
 
             <div class="relative">
-              <i
-                class="fa fa-money absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-              ></i>
+              <i class="fa fa-money absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
 
               <input
                 type="number"
@@ -202,96 +209,166 @@
                 name="unit_price"
                 min="0.01"
                 step="0.01"
-                placeholder="0.00"
+                readonly
                 required
+                placeholder="0.00"
                 class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-gray-600 outline-none transition focus:border-[#D4A853]"
               />
             </div>
 
             <p class="mt-2 text-xs text-gray-500">
-              The server must verify the price against the selected product.
+              Price is loaded from the selected product.
             </p>
           </div>
+
         </div>
       </section>
 
       <div class="border-t border-white/[0.06]"></div>
 
-      <!-- Payment Method -->
-      <section>
-        <label
-          for="payment_method"
-          class="mb-2 block text-sm font-medium text-gray-300"
-        >
-          Payment Method
-        </label>
+      <!-- Payment Information -->
+      <section class="space-y-5">
+        <div class="flex items-center gap-3">
+          <i class="fa fa-credit-card text-[#D4A853]"></i>
+          <h3 class="font-semibold text-white">Payment Information</h3>
+        </div>
 
-        <div class="relative">
-          <i
-            class="fa fa-credit-card absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
-          ></i>
+        <!-- Payment Method -->
+        <div>
+          <label for="payment_method" class="mb-2 block text-sm font-medium text-gray-300">
+            Payment Method
+          </label>
 
-          <select
-            id="payment_method"
-            name="payment_method"
-            required
-            class="w-full appearance-none rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-10 text-sm text-gray-400 outline-none transition focus:border-[#D4A853]"
-          >
-            <option value="" selected disabled>Select payment method</option>
-            <option value="cash">Cash</option>
-            <option value="card">Card</option>
-          </select>
+          <div class="relative">
+            <i class="fa fa-credit-card absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
 
-          <i
-            class="fa fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-500"
-          ></i>
+            <select
+              id="payment_method"
+              name="payment_method"
+              required
+              class="w-full appearance-none rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-10 text-sm text-gray-300 outline-none transition focus:border-[#D4A853]"
+            >
+              <option
+                value="cash"
+                {% if request.form.get('payment_method', 'cash') == 'cash' %}selected{% endif %}
+              >
+                Cash
+              </option>
+
+              <option
+                value="card"
+                {% if request.form.get('payment_method') == 'card' %}selected{% endif %}
+              >
+                Card
+              </option>
+            </select>
+
+            <i class="fa fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-500"></i>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+          <!-- Paid Amount -->
+          <div>
+            <label for="paid_amount" class="mb-2 block text-sm font-medium text-gray-300">
+              Paid Amount (EGP)
+            </label>
+
+            <div class="relative">
+              <i class="fa fa-money absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+
+              <input
+                type="number"
+                id="paid_amount"
+                name="paid_amount"
+                min="0"
+                step="0.01"
+                value="{{ request.form.get('paid_amount', 0) }}"
+                required
+                class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm text-white outline-none transition focus:border-[#D4A853]"
+              />
+            </div>
+          </div>
+
+          <!-- Pending Amount -->
+          <div>
+            <label for="pending_amount" class="mb-2 block text-sm font-medium text-gray-300">
+              Pending Amount (EGP)
+            </label>
+
+            <div class="relative">
+              <i class="fa fa-clock-o absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+
+              <input
+                type="text"
+                id="pending_amount"
+                value="0.00 EGP"
+                readonly
+                class="w-full rounded-xl border border-[#333333] bg-[#111111] py-3.5 pl-11 pr-4 text-sm font-semibold text-[#D4A853] outline-none"
+              />
+            </div>
+          </div>
+
         </div>
       </section>
+
     </div>
 
     <!-- Invoice Summary -->
-    <div
-      class="mx-5 mb-5 rounded-xl border border-white/[0.06] bg-[#151515] p-5 sm:mx-7 sm:mb-7 sm:p-6"
-    >
+    <div class="mx-5 mb-5 rounded-xl border border-white/[0.06] bg-[#151515] p-5 sm:mx-7 sm:mb-7 sm:p-6">
+
       <div class="mb-5 flex items-center gap-2">
         <i class="fa fa-file-text-o text-[#D4A853]"></i>
         <h3 class="text-sm font-semibold text-white">Sale Summary</h3>
       </div>
 
-      <div class="space-y-3">
-        <div class="flex items-center justify-between gap-4 text-sm">
-          <span class="text-gray-400">Customer</span>
-          <span class="font-medium text-gray-200">Entered above</span>
-        </div>
+      <div class="space-y-4">
 
         <div class="flex items-center justify-between gap-4 text-sm">
           <span class="text-gray-400">Quantity</span>
-          <span class="font-medium text-gray-200">As entered</span>
+          <span id="summary_quantity" class="font-medium text-gray-200">1</span>
+        </div>
+
+        <div class="flex items-center justify-between gap-4 text-sm">
+          <span class="text-gray-400">Unit Price</span>
+          <span id="summary_price" class="font-medium text-gray-200">0.00 EGP</span>
         </div>
 
         <div class="border-t border-white/[0.06] pt-4">
           <div class="flex items-center justify-between gap-4">
-            <span class="text-sm font-semibold text-gray-300"
-              >Total Amount</span
-            >
-            <span class="text-xl font-bold text-[#D4A853]"
-              >Calculated by server</span
-            >
+            <span class="text-sm font-semibold text-gray-300">Total Amount</span>
+            <span id="total_amount_display" class="text-xl font-bold text-[#D4A853]">0.00 EGP</span>
           </div>
         </div>
+
+        <div class="flex items-center justify-between gap-4 text-sm">
+          <span class="text-gray-400">Paid Amount</span>
+          <span id="paid_amount_display" class="font-medium text-gray-200">0.00 EGP</span>
+        </div>
+
+        <div class="flex items-center justify-between gap-4 text-sm">
+          <span class="text-gray-400">Pending Amount</span>
+          <span id="pending_amount_display" class="font-semibold text-amber-400">0.00 EGP</span>
+        </div>
+
       </div>
+
+      <p
+        id="payment_message"
+        class="mt-4 hidden rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400"
+        role="alert"
+      ></p>
 
       <p class="mt-4 flex items-start gap-2 text-xs leading-5 text-gray-500">
         <i class="fa fa-info-circle mt-0.5 text-[#D4A853]"></i>
-        Customer information and the sale must be saved by the server. Inventory
-        should be updated only after the sale is validated.
+        The server validates the product price, quantity, and payment before saving the invoice.
       </p>
     </div>
 
     <!-- Actions -->
-    <div
-      class="flex flex-col-reverse gap-3 border-t border-white/[0.06] p-5 sm:flex-row sm:justify-end sm:px-7 sm:py-6"
-    >
+    <div class="flex flex-col-reverse gap-3 border-t border-white/[0.06] p-5 sm:flex-row sm:justify-end sm:px-7 sm:py-6">
+
       <button
         type="reset"
         class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#333333] px-5 py-3 text-sm font-semibold text-gray-300 transition hover:border-gray-500 hover:bg-white/[0.03]"
@@ -307,14 +384,114 @@
         <i class="fa fa-check-circle"></i>
         Complete Sale
       </button>
+
     </div>
   </form>
 
-  <!-- Footer -->
   <p class="text-center text-xs text-gray-500">
     <i class="fa fa-shield mr-1 text-[#D4A853]"></i>
     Review the sale details before confirming the transaction.
   </p>
+
 </div>
+
+<script>
+  const productSelect = document.getElementById("product_id");
+  const quantityInput = document.getElementById("quantity");
+  const priceInput = document.getElementById("unit_price");
+  const paidInput = document.getElementById("paid_amount");
+  const pendingInput = document.getElementById("pending_amount");
+  const form = document.getElementById("sale_form");
+
+  const summaryQuantity = document.getElementById("summary_quantity");
+  const summaryPrice = document.getElementById("summary_price");
+  const totalDisplay = document.getElementById("total_amount_display");
+  const paidDisplay = document.getElementById("paid_amount_display");
+  const pendingDisplay = document.getElementById("pending_amount_display");
+  const stockMessage = document.getElementById("stock_message");
+  const paymentMessage = document.getElementById("payment_message");
+
+  function money(value) {
+    return value.toLocaleString("en-EG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }) + " EGP";
+  }
+
+  function calculateInvoice() {
+    const selectedOption =
+      productSelect.options[productSelect.selectedIndex];
+
+    const productPrice = Number(selectedOption?.dataset.price || 0);
+    const stock = Number(selectedOption?.dataset.stock || 0);
+    const quantity = Number(quantityInput.value || 0);
+    const paid = Number(paidInput.value || 0);
+
+    // Use the selected product's database price for the preview.
+    priceInput.value = productSelect.value
+      ? productPrice.toFixed(2)
+      : "";
+
+    if (productSelect.value) {
+      quantityInput.max = stock;
+      stockMessage.textContent = `Available stock: ${stock}`;
+    } else {
+      quantityInput.removeAttribute("max");
+      stockMessage.textContent = "Select a product from your inventory.";
+    }
+
+    const unitPrice = Number(priceInput.value || 0);
+    const total = Math.max(0, quantity * unitPrice);
+    const pending = Math.max(0, total - paid);
+
+    summaryQuantity.textContent = quantity;
+    summaryPrice.textContent = money(unitPrice);
+    totalDisplay.textContent = money(total);
+    paidDisplay.textContent = money(paid);
+    pendingDisplay.textContent = money(pending);
+    pendingInput.value = money(pending);
+
+    const errors = [];
+
+    if (!productSelect.value) {
+      errors.push("Please select a product.");
+    }
+
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      errors.push("Quantity must be a positive whole number.");
+    }
+
+    if (productSelect.value && quantity > stock) {
+      errors.push("Quantity exceeds available stock.");
+    }
+
+    if (!Number.isFinite(paid) || paid < 0) {
+      errors.push("Paid amount must be zero or greater.");
+    } else if (paid > total) {
+      errors.push("Paid amount cannot exceed the invoice total.");
+    }
+
+    paymentMessage.textContent = errors.join(" ");
+    paymentMessage.classList.toggle("hidden", errors.length === 0);
+
+    return errors.length === 0;
+  }
+
+  productSelect.addEventListener("change", calculateInvoice);
+  quantityInput.addEventListener("input", calculateInvoice);
+  paidInput.addEventListener("input", calculateInvoice);
+
+  form.addEventListener("reset", () => {
+    setTimeout(calculateInvoice, 0);
+  });
+
+  form.addEventListener("submit", (event) => {
+    if (!calculateInvoice()) {
+      event.preventDefault();
+    }
+  });
+
+  calculateInvoice();
+</script>
 
 {% endblock %}
