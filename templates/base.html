@@ -102,8 +102,7 @@
             class="hidden w-full items-center justify-center gap-3 rounded-lg px-3 py-3 text-gray-400 transition-colors hover:bg-[#292929] hover:text-[#D4A853] md:flex"
             aria-label="Collapse sidebar"
           >
-            <i id="toggleIcon" class="fa fa-angle-double-left text-xl"></i>
-            <span id="toggleText" class="text-sm">Collapse Menu</span>
+            << Collapse Menu
           </button>
         </div>
       </aside>
@@ -132,5 +131,75 @@
         {% block main %} {% endblock %}
       </section>
     </main>
+    <script>
+      const sidebar = document.querySelector("#sideBar");
+      const collapseBtn = document.querySelector("#toggleSidebar");
+      const mainContent = document.querySelector("#mainContent");
+
+      const openBtn = document.querySelector("#openSidebar");
+      const closeBtn = document.querySelector("#closeSidebar");
+      const overlay = document.querySelector("#overlay");
+
+      const logo = document.querySelector("#logo");
+
+      const navLinks = sidebar.querySelectorAll("nav a");
+      const navTexts = sidebar.querySelectorAll("nav a span");
+      const navHeading = sidebar.querySelector("nav > p");
+
+      // Desktop: Collapse and expand sidebar
+      collapseBtn.addEventListener("click", () => {
+        const isCollapsed = !sidebar.classList.contains("sidebar-collapsed");
+
+        sidebar.classList.toggle("sidebar-collapsed", isCollapsed);
+        sidebar.classList.toggle("w-64", !isCollapsed);
+        sidebar.classList.toggle("w-20", isCollapsed);
+
+        mainContent.classList.toggle("md:ml-64", !isCollapsed);
+        mainContent.classList.toggle("md:ml-20", isCollapsed);
+
+        logo.classList.toggle("text-center", isCollapsed);
+
+        navTexts.forEach((text) => {
+          text.classList.toggle("hidden", isCollapsed);
+        });
+
+        navLinks.forEach((link) => {
+          link.classList.toggle("justify-center", isCollapsed);
+          link.classList.toggle("px-3", !isCollapsed);
+          link.classList.toggle("px-0", isCollapsed);
+        });
+
+        navHeading.classList.toggle("hidden", isCollapsed);
+
+        collapseBtn.textContent = isCollapsed ? ">>" : "<< Collapse Menu";
+
+        collapseBtn.setAttribute(
+          "aria-label",
+          isCollapsed ? "Expand sidebar" : "Collapse sidebar",
+        );
+      });
+
+      // Mobile: Open sidebar
+      function openSidebar() {
+        sidebar.classList.remove("-translate-x-full");
+        sidebar.classList.add("translate-x-0");
+
+        overlay.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+      }
+
+      // Mobile: Close sidebar
+      function closeSidebar() {
+        sidebar.classList.add("-translate-x-full");
+        sidebar.classList.remove("translate-x-0");
+
+        overlay.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+      }
+
+      openBtn.addEventListener("click", openSidebar);
+      closeBtn.addEventListener("click", closeSidebar);
+      overlay.addEventListener("click", closeSidebar);
+    </script>
   </body>
 </html>
