@@ -1,174 +1,313 @@
 {% extends "base.html" %} {% block main %}
+
 <div class="mx-auto max-w-[1600px] space-y-8">
   <!-- Header -->
-  <header
-    class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
-  >
-    <div>
-      <p
-        class="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#D4A853]"
-      >
-        Manage Products
-      </p>
-
-      <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        Products
-      </h1>
-
-      <p class="mt-2 text-sm font-normal text-gray-400">
-        Monitor your products.
-      </p>
-    </div>
-
-    <a
-      href="/"
-      class="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-[#111111] shadow-lg shadow-[#D4A853]/10 transition hover:-translate-y-0.5 hover:bg-[#e5bd70] sm:self-auto"
+  <header>
+    <p
+      class="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#D4A853]"
     >
-      <i class="fa fa-dashboard"></i>
-      Shop Status
-    </a>
-  </header>
-  {# product inputs #}
+      Inventory Management
+    </p>
 
-  <!-- Add Product Form -->
-  <div class="rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5 sm:p-6">
-    <div class="mb-6">
-      <p
-        class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#D4A853]"
-      >
-        Inventory
-      </p>
-      <h2 class="text-xl font-bold text-white">Add New Product</h2>
-      <p class="mt-1 text-sm text-gray-400">Enter the product details below.</p>
+    <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+      Products
+    </h1>
+
+    <p class="mt-2 text-sm text-gray-400">
+      Manage your products, prices, and available stock.
+    </p>
+  </header>
+
+  <!-- Error / Success Messages -->
+  {% if error %}
+  <div
+    class="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400"
+    role="alert"
+  >
+    <i class="fa fa-exclamation-circle mr-2"></i>
+    {{ error }}
+  </div>
+  {% endif %} {% if success %}
+  <div
+    class="rounded-xl border border-green-500/20 bg-green-500/10 p-4 text-sm text-green-400"
+    role="status"
+  >
+    <i class="fa fa-check-circle mr-2"></i>
+    {{ success }}
+  </div>
+  {% endif %}
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-400">Total Products</p>
+        <i class="fa fa-cubes text-lg text-[#D4A853]"></i>
+      </div>
+      <p class="mt-4 text-3xl font-bold text-white">{{ products|length }}</p>
     </div>
 
-    <form action="/products" method="POST" class="space-y-5">
-      <!-- Product Name -->
+    <div class="rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-400">Low Stock</p>
+        <i class="fa fa-exclamation-triangle text-lg text-amber-400"></i>
+      </div>
+      <p class="mt-4 text-3xl font-bold text-white">
+        {{ products|selectattr('quantity', 'le', 5)|list|length }}
+      </p>
+    </div>
+
+    <div class="rounded-2xl border border-white/[0.08] bg-[#1C1C1C] p-5">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-400">Out of Stock</p>
+        <i class="fa fa-times-circle text-lg text-red-400"></i>
+      </div>
+      <p class="mt-4 text-3xl font-bold text-white">
+        {{ products|selectattr('quantity', 'equalto', 0)|list|length }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Add Product -->
+  <section
+    class="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1C1C1C]"
+  >
+    <div class="border-b border-white/[0.06] p-5 sm:p-6">
+      <div class="flex items-center gap-3">
+        <div
+          class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#D4A853]/10"
+        >
+          <i class="fa fa-plus text-[#D4A853]"></i>
+        </div>
+
+        <div>
+          <h2 class="font-bold text-white">Add New Product</h2>
+          <p class="mt-1 text-sm text-gray-500">
+            Enter the product information below.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <form
+      action="{{ url_for('products') }}"
+      method="POST"
+      class="grid grid-cols-1 gap-5 p-5 sm:grid-cols-3 sm:p-6"
+    >
       <div>
         <label for="name" class="mb-2 block text-sm font-medium text-gray-300">
           Product Name
         </label>
+
         <input
           type="text"
           id="name"
           name="name"
-          placeholder="e.g. Wireless Headphones"
+          value="{{ request.form.get('name', '') }}"
+          placeholder="e.g. Wireless Mouse"
+          maxlength="100"
           required
-          class="w-full rounded-xl border border-[#333333] bg-[#111111] px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none transition focus:border-[#D4A853]"
+          class="w-full rounded-xl border border-[#333333] bg-[#111111] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-[#D4A853]"
         />
       </div>
 
-      <!-- Price and Quantity -->
-      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <div>
-          <label
-            for="price"
-            class="mb-2 block text-sm font-medium text-gray-300"
-          >
-            Price
-          </label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            placeholder="0.00"
-            min="0.01"
-            step="0.01"
-            required
-            class="w-full rounded-xl border border-[#333333] bg-[#111111] px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none transition focus:border-[#D4A853]"
-          />
-        </div>
+      <div>
+        <label for="price" class="mb-2 block text-sm font-medium text-gray-300">
+          Price (EGP)
+        </label>
 
-        <div>
-          <label
-            for="quantity"
-            class="mb-2 block text-sm font-medium text-gray-300"
-          >
-            Quantity
-          </label>
-          <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            placeholder="0"
-            min="0"
-            step="1"
-            required
-            class="w-full rounded-xl border border-[#333333] bg-[#111111] px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none transition focus:border-[#D4A853]"
-          />
-        </div>
+        <input
+          type="number"
+          id="price"
+          name="price"
+          value="{{ request.form.get('price', '') }}"
+          placeholder="0.00"
+          min="0.01"
+          step="0.01"
+          required
+          class="w-full rounded-xl border border-[#333333] bg-[#111111] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-[#D4A853]"
+        />
       </div>
 
-      <!-- Submit -->
-      <div class="flex justify-end border-t border-white/[0.06] pt-5">
+      <div>
+        <label
+          for="quantity"
+          class="mb-2 block text-sm font-medium text-gray-300"
+        >
+          Initial Quantity
+        </label>
+
+        <input
+          type="number"
+          id="quantity"
+          name="quantity"
+          value="{{ request.form.get('quantity', '') }}"
+          placeholder="0"
+          min="0"
+          step="1"
+          required
+          class="w-full rounded-xl border border-[#333333] bg-[#111111] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-[#D4A853]"
+        />
+      </div>
+
+      <div class="sm:col-span-3 sm:flex sm:justify-end">
         <button
           type="submit"
-          class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-[#111111] transition hover:bg-[#e5bd70]"
+          class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#D4A853] px-6 py-3 text-sm font-bold text-[#111111] transition hover:bg-[#e5bd70] sm:w-auto"
         >
           <i class="fa fa-plus"></i>
           Add Product
         </button>
       </div>
     </form>
-  </div>
+  </section>
 
-  <!-- All products -->
-  <div
-    class="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1C1C1C] xl:col-span-2"
+  <!-- Products Table -->
+  <section
+    class="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1C1C1C]"
   >
     <div
-      class="flex items-center justify-between gap-4 border-b border-white/[0.06] p-5 sm:p-6"
+      class="flex flex-col gap-4 border-b border-white/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
     >
       <div>
-        <h2 class="text-lg font-bold text-white">Products</h2>
-        <p class="mt-1 text-xs font-normal text-gray-500">All products</p>
+        <h2 class="font-bold text-white">All Products</h2>
+        <p class="mt-1 text-sm text-gray-500">
+          Products currently registered in your inventory.
+        </p>
       </div>
 
-      <div class="relative w-full sm:w-64">
+      <div class="relative">
         <i
-          class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#D4A853]"
+          class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
         ></i>
         <input
-          type="text"
-          placeholder="Search..."
-          class="w-full rounded-lg border border-[#333333] bg-[#1C1C1C] py-2 pl-9 pr-3 text-sm text-white placeholder:text-gray-500 outline-none transition focus:border-[#D4A853]"
+          type="search"
+          id="product_search"
+          placeholder="Search products..."
+          class="w-full rounded-xl border border-[#333333] bg-[#111111] py-2.5 pl-9 pr-4 text-sm text-white outline-none focus:border-[#D4A853] sm:w-64"
         />
       </div>
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full min-w-[480px] text-left">
-        <thead>
-          <tr
-            class="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-gray-500"
-          >
-            <th class="px-5 py-4 font-medium sm:px-6">Name</th>
-            <th class="px-5 py-4 font-medium">Price</th>
-            <th class="px-5 py-4 font-medium">quantity</th>
-            <th class="px-5 py-4 font-medium">Status</th>
+      <table class="w-full min-w-[650px] text-left text-sm">
+        <thead
+          class="bg-[#151515] text-xs uppercase tracking-wider text-gray-500"
+        >
+          <tr>
+            <th class="px-6 py-4 font-semibold">Product</th>
+            <th class="px-6 py-4 font-semibold">Price</th>
+            <th class="px-6 py-4 font-semibold">Quantity</th>
+            <th class="px-6 py-4 font-semibold">Stock Status</th>
           </tr>
         </thead>
 
-        <tbody>
-          <tr>
-            <td colspan="4" class="px-5 py-14 text-center sm:px-6">
-              <div
-                class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#252525] text-gray-500"
-              >
-                <i class="fa fa-shopping-bag text-xl"></i>
+        <tbody id="products_table" class="divide-y divide-white/[0.05]">
+          {% for product in products %}
+          <tr class="product-row transition hover:bg-white/[0.02]">
+            <td class="px-6 py-5">
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#D4A853]/15 bg-[#D4A853]/10"
+                >
+                  <i class="fa fa-cube text-[#D4A853]"></i>
+                </div>
+
+                <div>
+                  <p class="product-name font-semibold text-white">
+                    {{ product['name'] }}
+                  </p>
+                  <p class="mt-1 text-xs text-gray-500">
+                    ID: #{{ product['id'] }}
+                  </p>
+                </div>
               </div>
-              <p class="mt-4 text-sm font-medium text-gray-300">
-                No products yet
+            </td>
+
+            <td class="px-6 py-5 font-medium text-gray-200">
+              {{ "%.2f"|format(product['price']) }} EGP
+            </td>
+
+            <td class="px-6 py-5 text-gray-300">{{ product['quantity'] }}</td>
+
+            <td class="px-6 py-5">
+              {% if product['quantity'] == 0 %}
+              <span
+                class="inline-flex items-center gap-2 rounded-full bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-400"
+              >
+                <span class="h-1.5 w-1.5 rounded-full bg-red-400"></span>
+                Out of Stock
+              </span>
+              {% elif product['quantity'] <= 5 %}
+              <span
+                class="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-400"
+              >
+                <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                Low Stock
+              </span>
+              {% else %}
+              <span
+                class="inline-flex items-center gap-2 rounded-full bg-green-500/10 px-3 py-1.5 text-xs font-semibold text-green-400"
+              >
+                <span class="h-1.5 w-1.5 rounded-full bg-green-400"></span>
+                In Stock
+              </span>
+              {% endif %}
+            </td>
+          </tr>
+
+          {% else %}
+          <tr id="empty_products">
+            <td colspan="4" class="px-6 py-16 text-center">
+              <i class="fa fa-cubes text-3xl text-gray-600"></i>
+              <p class="mt-4 font-medium text-gray-300">No products yet</p>
+              <p class="mt-2 text-sm text-gray-500">
+                Add your first product using the form above.
               </p>
-              <p class="mt-1 text-xs font-normal text-gray-500">
-                Your products will appear here.
-              </p>
+            </td>
+          </tr>
+          {% endfor %}
+
+          <tr id="no_search_results" class="hidden">
+            <td
+              colspan="4"
+              class="px-6 py-10 text-center text-sm text-gray-500"
+            >
+              No products match your search.
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-  </div>
+
+    <div class="border-t border-white/[0.06] px-6 py-4 text-xs text-gray-500">
+      Showing {{ products|length }} product(s)
+    </div>
+  </section>
 </div>
+
+<script>
+  const productSearch = document.getElementById("product_search");
+  const productRows = document.querySelectorAll(".product-row");
+  const noResults = document.getElementById("no_search_results");
+
+  productSearch.addEventListener("input", function () {
+    const query = this.value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    productRows.forEach((row) => {
+      const name = row.querySelector(".product-name").textContent.toLowerCase();
+      const matches = name.includes(query);
+
+      row.classList.toggle("hidden", !matches);
+
+      if (matches) {
+        visibleCount++;
+      }
+    });
+
+    noResults.classList.toggle("hidden", visibleCount > 0);
+  });
+</script>
 
 {% endblock %}

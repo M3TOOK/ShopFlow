@@ -121,10 +121,64 @@ def dashboard():
     )
 
 
-# Products
-@app.route("/products")
+
+@app.route("/products", methods=["GET", "POST"])
 def products():
-    return render_template("products.html")
+    db = get_db()
+    error = None
+    success = None
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        price = request.form.get("price", type=float)
+        quantity = request.form.get("quantity", type=int)
+
+        if not name or price is None or quantity is None:
+            error = "Please fill in all product fields."
+        elif price <= 0:
+            error = "Price must be greater than zero."
+        elif quantity < 0:
+            error = "Quantity cannot be negative."
+        else:
+            try:
+                # مؤقتًا: استخدم أول مستخدم موجود بسبب user_id الإجباري في جدول products.
+                owner = db.execute(
+                    "SELECT id FROM users ORDER BY id LIMIT 1"
+                ).fetchone()
+
+                if owner is None:
+                    error = "Create a user before adding products."
+                else:
+                    db.execute(
+                        """
+                        INSERT INTO products (user_id, name, price, quantity)
+                        VALUES (?, ?, ?, ?)
+                        """,
+                        (owner["id"], name, price, quantity)
+                    )
+                    db.commit()
+                    success = "Product added successfully."
+
+            except sqlite3.IntegrityError:
+                db.rollback()
+                error = "Could not add this product."
+
+    all_products = db.execute(
+        """
+        SELECT id, name, price, quantity
+        FROM products
+        ORDER BY id DESC
+        """
+    ).fetchall()
+
+    db.close()
+
+    return render_template(
+        "products.html",
+        products=all_products,
+        error=error,
+        success=success
+    )
 
 
 
