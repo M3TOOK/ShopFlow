@@ -219,7 +219,7 @@ def products():
     db.close()
 
     return render_template(
-        "products.html",
+        "Products.html",
         products=all_products,
         error=error,
         success=success
