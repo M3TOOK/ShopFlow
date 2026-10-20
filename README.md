@@ -1,6 +1,6 @@
 # ShopFlow
 
-#### Video Demo: [Add your YouTube video URL here]
+#### Video Demo: [https://youtu.be/UFEjXkLZZHo]
 
 ## Description
 
