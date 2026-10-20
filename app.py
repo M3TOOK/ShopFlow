@@ -1,4 +1,3 @@
-
 import sqlite3
 from flask import Flask, render_template, redirect, request
 
@@ -32,6 +31,7 @@ def init_db():
         )
     """)
 
+    # Migrate old products table if it still contains user_id.
     columns = [
         row["name"]
         for row in db.execute("PRAGMA table_info(products)").fetchall()
@@ -43,7 +43,6 @@ def init_db():
 
         try:
             db.execute("BEGIN")
-
             db.execute("""
                 CREATE TABLE products_new (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,20 +51,16 @@ def init_db():
                     quantity INTEGER NOT NULL CHECK (quantity >= 0)
                 )
             """)
-
             db.execute("""
                 INSERT INTO products_new (id, name, price, quantity)
                 SELECT id, name, price, quantity FROM products
             """)
-
             db.execute("DROP TABLE products")
             db.execute("ALTER TABLE products_new RENAME TO products")
             db.commit()
-
         except Exception:
             db.rollback()
             raise
-
         finally:
             db.execute("PRAGMA foreign_keys = ON")
 
@@ -162,9 +157,9 @@ def dashboard():
     """).fetchall()
 
     pendingPayments = db.execute("""
-    SELECT COALESCE(SUM(total_amount - paid_amount), 0)
-    FROM sales
-""").fetchone()[0]
+        SELECT COALESCE(SUM(total_amount - paid_amount), 0)
+        FROM sales
+    """).fetchone()[0]
 
     db.close()
 
@@ -278,25 +273,27 @@ def sales():
             if paid_amount > total_amount:
                 raise ValueError("Paid amount cannot exceed total amount.")
 
+            # Reuse the existing customer instead of inserting a duplicate.
+            # Match by phone first; username is UNIQUE in this database.
             customer = db.execute("""
-                SELECT id FROM users WHERE phone = ?
-            """, (customer_phone,)).fetchone()
+                SELECT id, username, phone
+                FROM users
+                WHERE phone = ? OR username = ?
+                ORDER BY CASE WHEN phone = ? THEN 0 ELSE 1 END
+                LIMIT 1
+            """, (customer_phone, customer_name, customer_phone)).fetchone()
 
             if customer:
                 customer_id = customer["id"]
 
-                db.execute("""
-                    UPDATE users SET username = ? WHERE id = ?
-                """, (customer_name, customer_id))
+                # If the phone exists but the name has changed, keep the
+                # existing customer record and avoid violating UNIQUE username.
             else:
-                db.execute("""
+                cursor = db.execute("""
                     INSERT INTO users (username, phone)
                     VALUES (?, ?)
                 """, (customer_name, customer_phone))
-
-                customer_id = db.execute("""
-                    SELECT id FROM users WHERE phone = ?
-                """, (customer_phone,)).fetchone()["id"]
+                customer_id = cursor.lastrowid
 
             cursor = db.execute("""
                 INSERT INTO sales
@@ -333,7 +330,6 @@ def sales():
 
             db.commit()
             db.close()
-
             return redirect("/sales")
 
         except (ValueError, TypeError, sqlite3.IntegrityError) as e:
